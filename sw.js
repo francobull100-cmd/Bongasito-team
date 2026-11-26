@@ -1,6 +1,6 @@
 // Guarda la carcasa de la app para que abra al instante y sin conexión.
 // Los datos (Supabase) siempre van a la red.
-const CACHE = 'penca-v2';
+const CACHE = 'penca-v3';
 const SHELL = ['./', 'index.html', 'config.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png'];
 
 self.addEventListener('install', (e) => {

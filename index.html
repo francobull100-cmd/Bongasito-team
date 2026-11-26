@@ -89,17 +89,12 @@ label.l{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06
 #nav .in{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;width:100%;max-width:560px}
 #nav button{border:0;background:transparent;color:var(--muted);font:600 13px var(--font-body);padding:15px 4px 13px;border-top:3px solid transparent;cursor:pointer}
 #nav button[aria-current="true"]{color:var(--accent);border-top-color:var(--accent)}
-#bar{position:fixed;left:0;right:0;bottom:calc(52px + env(safe-area-inset-bottom,0px));z-index:6;display:flex;justify-content:center;
-  padding:0 max(16px,env(safe-area-inset-left,0px)) 10px max(16px,env(safe-area-inset-right,0px));pointer-events:none}
-#bar .in{pointer-events:auto;width:100%;max-width:560px;background:var(--fg);color:var(--bg);border-radius:12px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;gap:10px}
-#bar .in .btn{background:var(--accent);color:var(--accent-fg)}
 [hidden]{display:none!important}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 </style>
 </head>
 <body>
 <div class="wrap"><div id="app"></div></div>
-<div id="bar" hidden></div>
 <div id="nav" hidden></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
@@ -110,7 +105,9 @@ var CFG=window.PENCA||{};
 var S={me:null,name:null,groups:[],gm:[],matches:[],picks:{},season:null,seasons:[],gid:null,
   tab:'pred',view:'next',tv:'next',tbl:'season',hist:null,histLoading:false,drafts:{},busy:false,toast:null,moreP:false,loaded:false,slow:false,fatal:null,now:Date.now()};
 var sb=null;
-var app=document.getElementById('app'),bar=document.getElementById('bar'),nav=document.getElementById('nav');
+var auth={ready:false,anonymous:false,busy:false,email:'',notice:''};
+var pickTimers={}, pickWrites={}, pickErrors={};
+var app=document.getElementById('app'),nav=document.getElementById('nav');
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 var fmt=new Intl.DateTimeFormat('es-CL',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'America/Santiago'});
 var fmtD=new Intl.DateTimeFormat('es-CL',{weekday:'short',day:'numeric',month:'short',timeZone:'America/Santiago'});
@@ -199,6 +196,7 @@ var rt=0;function refreshSoon(){clearTimeout(rt);rt=setTimeout(refresh,400)}
 /* ---- vistas ---- */
 function html(){
   if(S.fatal) return '<p class="notice">'+esc(S.fatal)+'</p>';
+  if(auth.ready&&(!S.me||auth.anonymous)) return accountHtml();
   if(!S.loaded) return head()+'<p class="empty">'+(S.slow?'No se pudo conectar todavía. Revisa tu conexión; reintentamos solos.':'Cargando la penca…')+'</p>';
   if(!S.name) return onboarding();
   var b='';
@@ -211,9 +209,21 @@ function head(){
   if(S.seasons.length>1) sel='<select class="chip" id="seasonSel" aria-label="Temporada">'+S.seasons.map(function(s){return '<option'+(s===S.season?' selected':'')+'>'+s+'</option>'}).join('')+'</select>';
   return '<div class="top"><div><h1 class="brand">Penca <b>Chilena</b></h1><div class="sub">Primera División'+(S.season?' '+S.season:'')+'</div></div><div class="row" style="justify-content:flex-end">'+sel+(g?'<button class="chip" data-act="tab" data-t="grupos">'+esc(g.name)+'</button>':'')+'</div></div>';
 }
+function accountHtml(){
+  var disabled=auth.busy?' disabled':'';
+  return head()+'<div class="card"><h2 style="font-size:24px">'+(auth.anonymous?'Vincula tu cuenta':'Entra a la penca')+'</h2>'+
+    '<p class="sub">'+(auth.anonymous?'Vincula tu perfil para conservarlo al cambiar de celular.':'Crea una cuenta o entra con el correo que ya usaste.')+'</p>'+
+    '<button type="button" class="btn" data-act="google"'+disabled+'>'+(auth.anonymous?'Vincular con Google':'Continuar con Google')+'</button>'+
+    '<form id="emailForm"><label class="l" for="authEmail">Correo electrónico</label>'+
+    '<input id="authEmail" class="txt" type="email" autocomplete="email" value="'+esc(auth.email)+'" required'+disabled+'>'+
+    '<div style="margin-top:12px"><button class="btn ghost" type="submit"'+disabled+'>'+(auth.anonymous?'Vincular por correo':'Recibir enlace por correo')+'</button></div></form>'+
+    (auth.anonymous?'<button type="button" class="btn sm ghost" style="margin-top:12px" data-act="signout"'+disabled+'>Usar otra cuenta</button>':'')+
+    '<p class="sub" role="status" style="margin-top:12px">'+esc(auth.notice)+'</p></div>';
+}
 function onboarding(){
   return head()+'<div class="card"><h2 style="font-size:24px">¿Cómo te llamas?</h2><p class="sub">Tus amigos verán este nombre en la tabla.</p>'+
-   '<label class="l" for="nameIn">Tu nombre</label><input class="txt" id="nameIn" maxlength="24" autocomplete="nickname" placeholder="Ej: Franco"><div style="margin-top:12px"><button class="btn" data-act="saveName" '+(S.busy?'disabled':'')+'>Entrar a la penca</button></div></div>';
+   '<label class="l" for="nameIn">Tu nombre</label><input class="txt" id="nameIn" maxlength="24" autocomplete="nickname" placeholder="Ej: Franco"><div style="margin-top:12px"><button class="btn" data-act="saveName" '+(S.busy?'disabled':'')+'>Entrar a la penca</button> <button class="btn ghost" data-act="signout">Cerrar sesión</button></div></div>'+
+   (S.toast?'<p role="status" class="notice">'+esc(S.toast)+'</p>':'');
 }
 function legend(){
   return '<p class="legend"><span><b>8</b>resultado exacto</span><span><b>5</b>ganador y diferencia</span><span><b>3</b>ganador</span><span><b>0</b>nada</span></p>';
@@ -239,7 +249,7 @@ function grpLabel(m){
 }
 function card(m){
   var lk=locked(m), pk=myPick(m.id), d=S.drafts[m.id];
-  var hv=d?d.h:(pk?String(pk.h):''), av=d?d.a:(pk?String(pk.a):'');
+  var hv=d&&!lk?d.h:(pk?String(pk.h):''), av=d&&!lk?d.a:(pk?String(pk.a):'');
   var dis=lk?' disabled':'';
   var foot='';
   if(m.hg!=null){
@@ -247,7 +257,7 @@ function card(m){
   } else if(lk){
     foot='<span>Cerrado, esperando resultado</span>'+(pk?'<span>tu pronóstico '+pk.h+'–'+pk.a+'</span>':'<span class="pill p0">Sin pronóstico</span>');
   } else {
-    foot='<span>Se cierra al comenzar el partido</span>'+(pk&&!d?'<span>guardado</span>':'');
+    foot='<span>Se cierra al comenzar el partido</span><span id="pick-status-'+m.id+'" role="status">'+pickStatus(m.id)+'</span>';
   }
   return '<div class="card"><div class="kick">'+esc(fmt.format(new Date(m.kickoff)))+'</div><div class="fx"><div class="team h">'+esc(short(m.home))+'</div>'+
     '<div class="sc"><input id="ph-'+m.id+'" data-pick="'+m.id+':h" inputmode="numeric" maxlength="2" autocomplete="off" aria-label="Goles de '+esc(m.home)+'" value="'+esc(hv)+'"'+dis+'><span>–</span>'+
@@ -318,23 +328,60 @@ function gruposHtml(){
   }
   h+='<h2 class="round">Crear grupo</h2><div class="card"><label class="l" for="gName" style="margin-top:0">Nombre del grupo</label><input class="txt" id="gName" maxlength="30" placeholder="Ej: Los del curso"><div style="margin-top:10px"><button class="btn" data-act="create" '+(S.busy?'disabled':'')+'>Crear grupo</button></div></div>';
   h+='<h2 class="round">Unirme con un código</h2><div class="card"><label class="l" for="gCode" style="margin-top:0">Código del grupo</label><div class="row"><input class="txt grow" id="gCode" maxlength="8" autocapitalize="characters" placeholder="Ej: K7M2P"><button class="btn" data-act="join" '+(S.busy?'disabled':'')+'>Unirme</button></div></div>';
-  return h;
+  return h+'<button class="btn ghost" data-act="signout">Cerrar sesión</button>';
 }
-function drafted(){
-  var n=0;
-  Object.keys(S.drafts).forEach(function(mid){
-    var d=S.drafts[mid], m=S.matches.filter(function(x){return String(x.id)===mid})[0];
-    if(!m||locked(m)||!/^\d{1,2}$/.test(d.h)||!/^\d{1,2}$/.test(d.a)) return;
-    var pk=myPick(mid);
-    if(!pk||pk.h!==+d.h||pk.a!==+d.a) n++;
-  });
-  return n;
+function completePick(draft){
+  return draft&&/^\d{1,2}$/.test(draft.h)&&/^\d{1,2}$/.test(draft.a);
 }
-function renderBar(){
-  var n=(S.tab==='pred'&&S.loaded&&S.name)?drafted():0;
-  if(!n){bar.hidden=true;bar.innerHTML='';return}
-  bar.hidden=false;
-  bar.innerHTML='<div class="in"><span>'+n+' pronóstico'+(n===1?'':'s')+' sin guardar</span><button class="btn sm" data-act="savePicks" '+(S.busy?'disabled':'')+'>Guardar</button></div>';
+function persistDrafts(){
+  lsSet('penca-drafts:'+S.me,JSON.stringify(S.drafts));
+}
+function pickStatus(mid){
+  var draft=S.drafts[mid];
+  if(pickErrors[mid]) return 'Sin guardar · toca para reintentar';
+  if(pickWrites[mid]||completePick(draft)) return 'Guardando…';
+  if(draft) return 'Borrador · completa ambos goles';
+  return myPick(mid)?'Guardado':'';
+}
+function showPickStatus(mid){
+  var el=document.getElementById('pick-status-'+mid);
+  if(!el) return;
+  el.textContent=pickStatus(mid);
+  if(pickErrors[mid]){
+    var retry=document.createElement('button');
+    retry.type='button';retry.className='chip';
+    retry.dataset.act='retryPick';retry.dataset.mid=mid;
+    retry.textContent='Sin guardar · reintentar';
+    el.replaceChildren(retry);
+  }
+}
+function queuePick(match,delay){
+  var mid=match.id;
+  clearTimeout(pickTimers[mid]);
+  delete pickErrors[mid];
+  if(completePick(S.drafts[mid])) pickTimers[mid]=setTimeout(function(){savePick(match)},delay);
+  showPickStatus(mid);
+}
+async function savePick(match){
+  var mid=match.id, draft=S.drafts[mid];
+  if(pickWrites[mid]||!completePick(draft)) return;
+  if(Date.parse(match.kickoff)<=Date.now()){sched();return}
+  pickWrites[mid]=true;
+  showPickStatus(mid);
+  var row={user_id:S.me,match_id:mid,h:+draft.h,a:+draft.a,updated_at:new Date().toISOString()};
+  try{
+    var result=await sb.from('picks').upsert(row,{onConflict:'user_id,match_id'});
+    if(result.error) throw result.error;
+    (S.picks[S.me]=S.picks[S.me]||{})[mid]={h:row.h,a:row.a};
+    if(S.drafts[mid]===draft){delete S.drafts[mid];persistDrafts()}
+  }catch(error){
+    pickErrors[mid]=true;
+  }finally{
+    delete pickWrites[mid];
+    if(S.drafts[mid]!==draft&&completePick(S.drafts[mid])) queuePick(match,0);
+    showPickStatus(mid);
+    sched();
+  }
 }
 function renderNav(){
   if(!(S.loaded&&S.name)){nav.hidden=true;return}
@@ -344,7 +391,8 @@ function renderNav(){
 function render(){
   var ae=document.activeElement, fid=ae&&ae.id, ss=null;
   try{ss=ae&&ae.selectionStart}catch(e){}
-  app.innerHTML=html(); renderBar(); renderNav();
+  app.innerHTML=html(); renderNav();
+  Object.keys(pickErrors).forEach(showPickStatus);
   if(fid){var el=document.getElementById(fid);if(el&&el!==document.activeElement){el.focus();try{if(ss!=null)el.setSelectionRange(ss,ss)}catch(e){}}}
 }
 var raf=0;
@@ -352,7 +400,54 @@ function sched(){if(raf)return;raf=requestAnimationFrame(function(){raf=0;S.now=
 
 /* ---- acciones ---- */
 function val(id){var e=document.getElementById(id);return e?e.value.trim():''}
+async function accountAction(action){
+  if(auth.busy) return;
+  auth.busy=true;auth.notice='';sched();
+  var redirectTo=location.origin+location.pathname;
+  try{
+    var result;
+    if(action==='google'){
+      var credentials={provider:'google',options:{redirectTo:redirectTo}};
+      result=auth.anonymous?await sb.auth.linkIdentity(credentials):await sb.auth.signInWithOAuth(credentials);
+    }else if(action==='email'){
+      result=auth.anonymous
+        ?await sb.auth.updateUser({email:auth.email},{emailRedirectTo:redirectTo})
+        :await sb.auth.signInWithOtp({email:auth.email,options:{emailRedirectTo:redirectTo}});
+    }else{
+      var waiting=Object.keys(pickWrites).length||S.matches.some(function(match){
+        return !pickErrors[match.id]&&Date.parse(match.kickoff)>Date.now()&&completePick(S.drafts[match.id]);
+      });
+      if(waiting){toast('Espera a que se guarden tus pronósticos antes de salir.');return}
+      result=await sb.auth.signOut({scope:'local'});
+      if(result.error) throw result.error;
+      location.replace(redirectTo);
+      return;
+    }
+    if(result.error) throw result.error;
+    if(action==='email') auth.notice='Revisa tu correo. Abre el enlace para '+(auth.anonymous?'confirmar la vinculación.':'entrar a la penca.');
+  }catch(error){
+    var message=(error&&error.message)||'';
+    if(action==='signout'){
+      auth.notice='No se pudo cerrar sesión. Intenta otra vez.';
+      toast(auth.notice);
+    }else if(/already|identity_already_exists|email_exists/i.test(message+' '+error.code)){
+      auth.notice='Ese correo ya está asociado a otra cuenta. Puedes vincular un correo distinto o entrar a la cuenta existente.';
+    }else if(/provider is not enabled|manual linking/i.test(message)){
+      auth.notice='Este método todavía requiere configuración en Supabase.';
+    }else{
+      auth.notice=action==='email'?'No se pudo enviar el enlace. Revisa el correo o intenta más tarde.':'No se pudo continuar con Google. Intenta otra vez.';
+    }
+  }finally{
+    auth.busy=false;sched();
+  }
+}
 function act(a,d){
+  if(a==='google'||a==='signout'){accountAction(a);return}
+  if(a==='retryPick'){
+    var match=S.matches.find(function(m){return String(m.id)===d.mid});
+    if(match) queuePick(match,0);
+    return;
+  }
   if(a==='tab'){S.tab=d.t;S.toast=null;sched();window.scrollTo(0,0);return}
   if(a==='view'){S.view=d.v;sched();return}
   if(a==='tbl'){S.tbl=d.v;if(d.v==='hist')loadHist();sched();return}
@@ -372,30 +467,31 @@ function act(a,d){
   if(a==='copy'){
     var done=function(){toast('Código copiado')}, fail=function(){toast('Copia el código a mano: '+d.c)};
     try{navigator.clipboard.writeText(d.c).then(done,fail)}catch(e){fail()}return}
-  if(a==='savePicks'){
-    run(async function(){
-      var rows=[], saved=[];
-      Object.keys(S.drafts).forEach(function(mid){
-        var dr=S.drafts[mid], m=S.matches.filter(function(x){return String(x.id)===mid})[0];
-        if(!m||locked(m)||!/^\d{1,2}$/.test(dr.h)||!/^\d{1,2}$/.test(dr.a)) return;
-        rows.push({user_id:S.me,match_id:m.id,h:+dr.h,a:+dr.a,updated_at:new Date().toISOString()}); saved.push(mid);
-      });
-      if(!rows.length) return;
-      var r=await sb.from('picks').upsert(rows,{onConflict:'user_id,match_id'}); if(r.error)throw r.error;
-      saved.forEach(function(k){delete S.drafts[k]}); await refresh();
-    },'Pronósticos guardados');return}
 }
 app.addEventListener('click',function(e){var b=e.target.closest('[data-act]');if(b)act(b.dataset.act,b.dataset)});
 nav.addEventListener('click',function(e){var b=e.target.closest('[data-act]');if(b)act(b.dataset.act,b.dataset)});
-bar.addEventListener('click',function(e){var b=e.target.closest('[data-act]');if(b)act(b.dataset.act,b.dataset)});
+app.addEventListener('submit',function(e){
+  if(e.target.id!=='emailForm') return;
+  e.preventDefault();
+  auth.email=val('authEmail');
+  if(auth.email) accountAction('email');
+});
 app.addEventListener('change',function(e){
-  if(e.target.id==='seasonSel'){S.season=+e.target.value;lsSet('penca-season',S.season);S.drafts={};refresh()}
+  if(e.target.id==='seasonSel'){S.season=+e.target.value;lsSet('penca-season',S.season);refresh()}
 });
 app.addEventListener('input',function(e){
-  var t=e.target; if(!t.dataset||!t.dataset.pick) return;
+  var t=e.target;
+  if(t.id==='authEmail'){auth.email=t.value;return}
+  if(!t.dataset||!t.dataset.pick) return;
   var v=t.value.replace(/\D/g,'').slice(0,2); if(t.value!==v) t.value=v;
   var p=t.dataset.pick.split(':'), mid=p[0], side=p[1], pk=myPick(mid);
-  var dr=S.drafts[mid]||{h:pk?String(pk.h):'',a:pk?String(pk.a):''}; dr[side]=v; S.drafts[mid]=dr; renderBar();
+  var match=S.matches.find(function(m){return String(m.id)===mid});
+  if(!match||Date.parse(match.kickoff)<=Date.now()){sched();return}
+  var previous=S.drafts[mid]||{h:pk?String(pk.h):'',a:pk?String(pk.a):''};
+  S.drafts[mid]={h:previous.h,a:previous.a};
+  S.drafts[mid][side]=v;
+  persistDrafts();
+  queuePick(match,450);
 });
 
 /* ---- arranque ---- */
@@ -404,10 +500,36 @@ async function start(){
   if(!CFG.SUPABASE_URL||!CFG.SUPABASE_ANON_KEY||!window.supabase){S.fatal='Falta configurar la app (config.js). Mira el README.';render();return}
   sb=window.supabase.createClient(CFG.SUPABASE_URL,CFG.SUPABASE_ANON_KEY);
   try{
-    var s=await sb.auth.getSession();
-    if(!s.data.session){var r=await sb.auth.signInAnonymously();if(r.error)throw r.error}
-    S.me=(await sb.auth.getUser()).data.user.id;
-  }catch(e){S.fatal='No se pudo iniciar sesión. Revisa que el inicio anónimo esté activado en Supabase.';render();return}
+    var result=await sb.auth.getSession();
+    if(result.error) throw result.error;
+    var session=result.data.session;
+    if(session){
+      S.me=session.user.id;
+      auth.anonymous=session.user.is_anonymous===true;
+    }
+  }catch(error){
+    auth.notice='No se pudo recuperar la sesión. Vuelve a entrar.';
+  }
+  var callback=new URLSearchParams(location.search);
+  var fragment=new URLSearchParams(location.hash.slice(1));
+  if(callback.has('error')||fragment.has('error')){
+    auth.notice='No se pudo completar el acceso. Si el enlace venció, solicita uno nuevo.';
+    history.replaceState(null,'',location.pathname);
+  }
+  auth.ready=true;
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('sw.js').catch(function(){});
+  }
+  if(!S.me||auth.anonymous){render();return}
+  try{S.drafts=JSON.parse(lsGet('penca-drafts:'+S.me)||'{}')||{}}catch(error){}
+  Object.keys(S.drafts).forEach(function(mid){
+    if(completePick(S.drafts[mid])) pickErrors[mid]=true;
+  });
+  sb.auth.onAuthStateChange(function(event,session){
+    if(!auth.busy&&(event==='SIGNED_OUT'||(session&&session.user.id!==S.me))){
+      location.reload();
+    }
+  });
   S.gid=lsGet('penca-gid');
   setTimeout(function(){if(!S.loaded){S.slow=true;sched()}},10000);
   await refresh();
@@ -416,7 +538,6 @@ async function start(){
     .on('postgres_changes',{event:'*',schema:'public',table:'group_members'},refreshSoon).subscribe();
   document.addEventListener('visibilitychange',function(){if(!document.hidden)refresh()});
   setInterval(function(){sched()},30000);
-  if('serviceWorker' in navigator){try{navigator.serviceWorker.register('sw.js')}catch(e){}}
 }
 start();
 })();

@@ -12,7 +12,11 @@ Puntos: 8 resultado exacto, 5 ganador y diferencia de goles, 3 ganador, 0 nada.
 ### 1. Base de datos (Supabase)
 1. Crea una cuenta en supabase.com y un proyecto nuevo (plan Free).
 2. Abre **SQL Editor**, pega todo `supabase/schema.sql` y presiona **Run**.
-3. Ve a **Authentication > Sign In / Providers** y activa **Anonymous sign-ins**.
+3. Configura **Authentication** para las cuentas:
+   - En **URL Configuration**, usa la URL pública de GitHub Pages con la barra final como **Site URL** y agrégala a **Redirect URLs**.
+   - En **Sign In / Providers**, mantén habilitado **Email**. Configura **Custom SMTP** para que Supabase pueda enviar enlaces a los jugadores. Usa la plantilla **Magic Link** con `{{ .ConfirmationURL }}`.
+   - Para **Google**, crea un cliente OAuth de tipo aplicación web en Google Cloud. Copia en Google la URL de callback que muestra Supabase. Carga el ID y el secreto del cliente en el proveedor **Google** de Supabase.
+   - Activa **Allow manual linking** para que los jugadores con una sesión anónima previa puedan vincular ese mismo perfil.
 4. Ve a **Project Settings > API**. Copia la **Project URL** y la clave **anon public** y pégalas en `config.js`.
    Copia también la clave **service_role** (secreta, solo para el paso 3).
 
@@ -34,7 +38,8 @@ Abre el enlace de GitHub Pages. En Android: menú del navegador > **Instalar app
 Crea un grupo, comparte el código de 5 letras y listo.
 
 ## Cómo funciona
-- Cada persona entra con un nombre; no hay contraseñas (inicio anónimo). Si alguien borra los datos del navegador, pierde su sesión y tendría que crear otro perfil.
+- Cada jugador entra con Google o con un enlace enviado por correo. En el primer acceso elige el nombre que verán sus amigos. Si ya tenía una sesión anónima, puede vincularla a una cuenta desde el navegador original.
+- El primer valor queda como borrador en ese navegador. Cuando ambos goles son válidos, la app guarda el marcador automáticamente y muestra su estado en el partido.
 - Los pronósticos se cierran al comenzar el partido y lo exige el servidor, no solo la app.
 - Cada jugador ve los pronósticos de quienes comparten grupo con él, también de partidos futuros.
 - Cada temporada es el año calendario. El script usa el año actual, así que desde enero la nueva temporada aparece sola y las anteriores quedan en el selector.
