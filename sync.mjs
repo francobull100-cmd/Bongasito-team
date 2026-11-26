@@ -19,7 +19,7 @@ const events = new Map();
 for (let m = 1; m <= 12; m++) {
   const mm = String(m).padStart(2, '0');
   const url = `https://site.api.espn.com/apis/site/v2/sports/soccer/${LEAGUE}/scoreboard` +
-        + `?dates=${SEASON}${mm}&limit=500`;
+        `?dates=${SEASON}${mm}&limit=500`;
   const r = await fetch(url);
   if (!r.ok) { console.error(`ESPN respondió ${r.status} para ${SEASON}-${mm}`); process.exit(1); }
   const body = await r.json();
