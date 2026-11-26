@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Penca Chilena</title>
+<meta name="theme-color" content="#C8202F">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Penca">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#F2F4F7; --surface:#FFFFFF; --fg:#0F1B2D; --muted:#586377; --line:#D9DFE8;
+  --accent:#C8202F; --accent-fg:#FFFFFF; --blue:#143C7C; --good:#1B7F4B; --on-strong:#FFFFFF; --chip:#E7EBF2;
+  --font-display:'Barlow Condensed','Arial Narrow',Arial,sans-serif;
+  --font-body:'Barlow',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0C1320; --surface:#151F31; --fg:#EEF2F8; --muted:#9AA6BB; --line:#26334A;
+    --accent:#F0505C; --accent-fg:#1A0709; --blue:#7FA6EE; --good:#4CC38A; --on-strong:#0C1320; --chip:#1F2B42;
+    color-scheme:dark;
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:var(--bg);color:var(--fg);font:15px/1.45 var(--font-body);
+  padding:env(safe-area-inset-top,0px) max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px));
+}
+.wrap{max-width:560px;margin:0 auto;padding-block:18px 150px}
+h1,h2,h3{font-family:var(--font-display);margin:0;font-weight:700;text-wrap:balance}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.brand{font-size:30px;line-height:1;text-transform:uppercase;letter-spacing:.04em}
+.brand b{color:var(--accent);font-weight:700}
+.sub{color:var(--muted);font-size:13px;margin-top:2px}
+.chip{border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:999px;padding:6px 12px;font:600 13px var(--font-body);cursor:pointer;max-width:48%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+select.chip{appearance:auto}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;color:var(--muted);font-size:13px;margin:0 0 14px}
+.legend b{color:var(--fg);font-family:var(--font-display);font-size:16px;margin-right:3px}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--chip);border-radius:10px;padding:3px;margin-bottom:14px}
+.seg button{border:0;background:transparent;color:var(--muted);font:600 14px var(--font-body);padding:8px;border-radius:8px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--fg)}
+h2.round{font-size:20px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:20px 0 8px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px}
+.kick{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.fx{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:10px}
+.team{font-family:var(--font-display);font-size:21px;font-weight:600;line-height:1.1;min-width:0;overflow-wrap:anywhere}
+.team.h{text-align:right}
+.sc{display:flex;align-items:center;gap:6px}
+.sc input{width:46px;height:48px;text-align:center;font:700 26px var(--font-display);border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);padding:0}
+.sc input:disabled{opacity:.55}
+.sc span{color:var(--muted);font-family:var(--font-display);font-size:22px}
+.foot{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:10px;font-size:13px;color:var(--muted)}
+.pill{display:inline-block;border-radius:999px;padding:3px 10px;font:700 14px var(--font-display);letter-spacing:.03em;white-space:nowrap}
+.p8{background:var(--good);color:var(--on-strong)}
+.p5{background:var(--blue);color:var(--on-strong)}
+.p3{background:var(--chip);color:var(--fg)}
+.p0{border:1px solid var(--line);color:var(--muted)}
+.btn{border:0;border-radius:10px;background:var(--accent);color:var(--accent-fg);font:700 15px var(--font-body);padding:11px 16px;cursor:pointer}
+.btn.ghost{background:var(--chip);color:var(--fg)}
+.btn.sm{padding:7px 12px;font-size:13px}
+.btn:disabled{opacity:.5;cursor:default}
+input.txt{width:100%;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg);font:500 16px var(--font-body);padding:10px 12px}
+label.l{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:10px 0 4px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.row>.grow{flex:1;min-width:140px}
+.rank{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.rank:last-child{border-bottom:0}
+.pos{font:700 22px var(--font-display);color:var(--muted);text-align:center}
+.rank:first-child .pos{color:var(--accent)}
+.nm{font-weight:600;overflow-wrap:anywhere}
+.nm small{display:block;color:var(--muted);font-weight:400;font-size:12px}
+.tot{font:700 28px var(--font-display);font-variant-numeric:tabular-nums}
+.empty,.notice{color:var(--muted);text-align:center;padding:26px 12px}
+.notice.warn{background:var(--chip);border-radius:10px;padding:10px 12px;text-align:left;margin-bottom:12px;color:var(--fg);font-size:14px}
+.code{font:700 26px var(--font-display);letter-spacing:.18em}
+.pk{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:6px 0;font-size:14px;border-top:1px solid var(--line)}
+.sc2{font:700 17px var(--font-display);font-variant-numeric:tabular-nums}
+#nav{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);display:flex;justify-content:center;
+  padding:0 max(8px,env(safe-area-inset-left,0px)) env(safe-area-inset-bottom,0px) max(8px,env(safe-area-inset-right,0px));z-index:5}
+#nav .in{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;width:100%;max-width:560px}
+#nav button{border:0;background:transparent;color:var(--muted);font:600 13px var(--font-body);padding:15px 4px 13px;border-top:3px solid transparent;cursor:pointer}
+#nav button[aria-current="true"]{color:var(--accent);border-top-color:var(--accent)}
+#bar{position:fixed;left:0;right:0;bottom:calc(52px + env(safe-area-inset-bottom,0px));z-index:6;display:flex;justify-content:center;
+  padding:0 max(16px,env(safe-area-inset-left,0px)) 10px max(16px,env(safe-area-inset-right,0px));pointer-events:none}
+#bar .in{pointer-events:auto;width:100%;max-width:560px;background:var(--fg);color:var(--bg);border-radius:12px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+#bar .in .btn{background:var(--accent);color:var(--accent-fg)}
+[hidden]{display:none!important}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="wrap"><div id="app"></div></div>
+<div id="bar" hidden></div>
+<div id="nav" hidden></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<script>
+(function(){
+var CFG=window.PENCA||{};
+var S={me:null,name:null,groups:[],gm:[],matches:[],picks:{},season:null,seasons:[],gid:null,
+  tab:'pred',view:'next',tv:'next',tbl:'season',hist:null,histLoading:false,drafts:{},busy:false,toast:null,moreP:false,loaded:false,slow:false,fatal:null,now:Date.now()};
+var sb=null;
+var app=document.getElementById('app'),bar=document.getElementById('bar'),nav=document.getElementById('nav');
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+var fmt=new Intl.DateTimeFormat('es-CL',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'America/Santiago'});
+var fmtD=new Intl.DateTimeFormat('es-CL',{weekday:'short',day:'numeric',month:'short',timeZone:'America/Santiago'});
+function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+function short(n){return String(n).replace(/^Universidad de /i,'U. de ').replace(/^Universidad /i,'U. ').replace(/^Deportes /i,'D. ').replace(/^Club Deportivo /i,'').replace(/ de Viña del Mar$/i,'')}
+
+/* puntaje: exacto 8, ganador y diferencia 5, ganador 3, nada 0 */
+function pts(p,m){
+  if(!p||m.hg==null||m.ag==null) return null;
+  var dp=p.h-p.a, dr=m.hg-m.ag;
+  if(p.h===m.hg&&p.a===m.ag) return 8;
+  if(Math.sign(dp)!==Math.sign(dr)) return 0;
+  return dp===dr?5:3;
+}
+function locked(m){return Date.parse(m.kickoff)<=S.now}
+function pickOf(uid,mid){var p=S.picks[uid];return p&&p[mid]?p[mid]:null}
+function myPick(mid){return pickOf(S.me,mid)}
+function curGroup(){return S.groups.filter(function(g){return g.id===S.gid})[0]||S.groups[0]||null}
+function membersOf(gid){return S.gm.filter(function(x){return x.group_id===gid})}
+function pillFor(n){
+  if(n==null) return '';
+  var l={8:'+8 exacto',5:'+5 ganador y diferencia',3:'+3 ganador',0:'0 puntos'}[n];
+  return '<span class="pill p'+n+'">'+l+'</span>';
+}
+function toast(msg){S.toast=msg;sched();setTimeout(function(){if(S.toast===msg){S.toast=null;sched()}},3500)}
+function errMsg(e){
+  var m=(e&&e.message)||'';
+  if(/row-level security/i.test(m)) return 'Ese partido ya comenzó: los pronósticos se cerraron.';
+  if(/group_not_found/.test(m)) return 'No existe un grupo con ese código.';
+  return 'No se pudo guardar. Revisa tu conexión e intenta de nuevo.';
+}
+async function run(fn,ok){
+  if(S.busy) return; S.busy=true; sched();
+  try{await fn(); if(ok) toast(ok)}catch(e){toast(errMsg(e))}
+  finally{S.busy=false; sched()}
+}
+
+/* ---- datos ---- */
+async function pageAll(make){
+  var out=[],from=0;
+  for(;;){var r=await make().range(from,from+999);if(r.error)throw r.error;out=out.concat(r.data);if(r.data.length<1000)break;from+=1000}
+  return out;
+}
+async function refresh(){
+  try{
+    var p=await sb.from('profiles').select('name').eq('id',S.me).maybeSingle();
+    if(p.error)throw p.error;
+    S.name=p.data?p.data.name:null;
+    var g=await sb.from('group_members').select('group_id,user_id,profiles(name),groups(id,name,code)');
+    if(g.error)throw g.error;
+    var seen={};S.groups=[];
+    S.gm=g.data.map(function(r){
+      if(r.user_id===S.me&&r.groups&&!seen[r.groups.id]){seen[r.groups.id]=1;S.groups.push(r.groups)}
+      return {group_id:r.group_id,user_id:r.user_id,name:r.profiles?r.profiles.name:'Jugador'};
+    });
+    var sr=await sb.from('matches').select('season').order('season',{ascending:false}).limit(1000);
+    if(sr.error)throw sr.error;
+    var set={};sr.data.forEach(function(r){set[r.season]=1});
+    S.seasons=Object.keys(set).map(Number).sort(function(a,b){return b-a});
+    if(!S.season||S.seasons.indexOf(S.season)<0){var sv=+lsGet('penca-season');S.season=S.seasons.indexOf(sv)>=0?sv:(S.seasons[0]||null)}
+    if(S.season){
+      S.matches=await pageAll(function(){return sb.from('matches').select('*').eq('season',S.season).order('kickoff').order('id')});
+      var pr=await pageAll(function(){return sb.from('picks').select('user_id,match_id,h,a,matches!inner(season)').eq('matches.season',S.season).order('user_id').order('match_id')});
+      var o={};pr.forEach(function(r){(o[r.user_id]=o[r.user_id]||{})[r.match_id]={h:r.h,a:r.a}});S.picks=o;
+    } else {S.matches=[];S.picks={}}
+    S.loaded=true;S.slow=false;if(S.tbl==='hist')loadHist();
+  }catch(e){S.slow=true}
+  sched();
+}
+/* historial: puntos de todas las temporadas con partido terminado */
+async function loadHist(){
+  if(S.histLoading) return; S.histLoading=true;
+  try{
+    var ms=await pageAll(function(){return sb.from('matches').select('id,season,hg,ag').not('hg','is',null).order('id')});
+    var pr=await pageAll(function(){return sb.from('picks').select('user_id,match_id,h,a').order('user_id').order('match_id')});
+    var mm={};ms.forEach(function(m){mm[m.id]=m});
+    var o={};
+    pr.forEach(function(r){var m=mm[r.match_id];if(!m)return;(o[r.user_id]=o[r.user_id]||[]).push({season:m.season,n:pts({h:r.h,a:r.a},m)})});
+    S.hist=o;
+  }catch(e){}
+  S.histLoading=false; sched();
+}
+var rt=0;function refreshSoon(){clearTimeout(rt);rt=setTimeout(refresh,400)}
+
+/* ---- vistas ---- */
+function html(){
+  if(S.fatal) return '<p class="notice">'+esc(S.fatal)+'</p>';
+  if(!S.loaded) return head()+'<p class="empty">'+(S.slow?'No se pudo conectar todavía. Revisa tu conexión; reintentamos solos.':'Cargando la penca…')+'</p>';
+  if(!S.name) return onboarding();
+  var b='';
+  if(S.slow) b+='<p class="notice warn">Sin conexión con el servidor. Mostramos lo último que cargó.</p>';
+  if(S.tab==='pred') b+=predHtml(); else if(S.tab==='tabla') b+=tablaHtml(); else b+=gruposHtml();
+  return head()+b+(S.toast?'<div class="notice warn" role="status" style="margin-top:12px">'+esc(S.toast)+'</div>':'');
+}
+function head(){
+  var g=curGroup(), sel='';
+  if(S.seasons.length>1) sel='<select class="chip" id="seasonSel" aria-label="Temporada">'+S.seasons.map(function(s){return '<option'+(s===S.season?' selected':'')+'>'+s+'</option>'}).join('')+'</select>';
+  return '<div class="top"><div><h1 class="brand">Penca <b>Chilena</b></h1><div class="sub">Primera División'+(S.season?' '+S.season:'')+'</div></div><div class="row" style="justify-content:flex-end">'+sel+(g?'<button class="chip" data-act="tab" data-t="grupos">'+esc(g.name)+'</button>':'')+'</div></div>';
+}
+function onboarding(){
+  return head()+'<div class="card"><h2 style="font-size:24px">¿Cómo te llamas?</h2><p class="sub">Tus amigos verán este nombre en la tabla.</p>'+
+   '<label class="l" for="nameIn">Tu nombre</label><input class="txt" id="nameIn" maxlength="24" autocomplete="nickname" placeholder="Ej: Franco"><div style="margin-top:12px"><button class="btn" data-act="saveName" '+(S.busy?'disabled':'')+'>Entrar a la penca</button></div></div>';
+}
+function legend(){
+  return '<p class="legend"><span><b>8</b>resultado exacto</span><span><b>5</b>ganador y diferencia</span><span><b>3</b>ganador</span><span><b>0</b>nada</span></p>';
+}
+function predHtml(){
+  var list=S.matches.filter(function(m){return S.view==='played'?m.hg!=null:m.hg==null});
+  var h=legend()+'<div class="seg"><button data-act="view" data-v="next" aria-pressed="'+(S.view==='next')+'">Por jugar</button><button data-act="view" data-v="played" aria-pressed="'+(S.view==='played')+'">Jugados</button></div>';
+  if(!list.length) return h+'<p class="empty">'+(S.view==='played'?'Todavía no hay resultados.':(S.season?'No hay partidos pendientes.':'Todavía no hay partidos cargados. El fixture se sincroniza solo.'))+'</p>';
+  if(S.view==='played') list=list.slice().reverse();
+  var cur=null;
+  list.forEach(function(m){
+    var gl=grpLabel(m);
+    if(gl!==cur){cur=gl;h+='<h2 class="round">'+esc(gl)+'</h2>'}
+    h+=card(m);
+  });
+  return h;
+}
+function grpLabel(m){
+  if(m.round!=null) return 'Fecha '+m.round;
+  var d=new Date(Date.parse(m.kickoff)-3*3600000), dow=(d.getUTCDay()+6)%7;
+  d.setUTCDate(d.getUTCDate()-dow);
+  return 'Semana del '+new Intl.DateTimeFormat('es-CL',{day:'numeric',month:'short',timeZone:'UTC'}).format(d);
+}
+function card(m){
+  var lk=locked(m), pk=myPick(m.id), d=S.drafts[m.id];
+  var hv=d?d.h:(pk?String(pk.h):''), av=d?d.a:(pk?String(pk.a):'');
+  var dis=lk?' disabled':'';
+  var foot='';
+  if(m.hg!=null){
+    foot='<span>Final <b style="color:var(--fg)">'+m.hg+' – '+m.ag+'</b>'+(pk?' · tu pronóstico '+pk.h+'–'+pk.a:'')+'</span>'+(pk?pillFor(pts(pk,m)):'<span class="pill p0">Sin pronóstico</span>');
+  } else if(lk){
+    foot='<span>Cerrado, esperando resultado</span>'+(pk?'<span>tu pronóstico '+pk.h+'–'+pk.a+'</span>':'<span class="pill p0">Sin pronóstico</span>');
+  } else {
+    foot='<span>Se cierra al comenzar el partido</span>'+(pk&&!d?'<span>guardado</span>':'');
+  }
+  return '<div class="card"><div class="kick">'+esc(fmt.format(new Date(m.kickoff)))+'</div><div class="fx"><div class="team h">'+esc(short(m.home))+'</div>'+
+    '<div class="sc"><input id="ph-'+m.id+'" data-pick="'+m.id+':h" inputmode="numeric" maxlength="2" autocomplete="off" aria-label="Goles de '+esc(m.home)+'" value="'+esc(hv)+'"'+dis+'><span>–</span>'+
+    '<input id="pa-'+m.id+'" data-pick="'+m.id+':a" inputmode="numeric" maxlength="2" autocomplete="off" aria-label="Goles de '+esc(m.away)+'" value="'+esc(av)+'"'+dis+'></div>'+
+    '<div class="team">'+esc(short(m.away))+'</div></div><div class="foot">'+foot+'</div></div>';
+}
+function ranking(g){
+  var ms=membersOf(g.id), done=S.matches.filter(function(m){return m.hg!=null});
+  var rows=ms.map(function(x){
+    var tot=0,ex=0;
+    done.forEach(function(m){var n=pts(pickOf(x.user_id,m.id),m);if(n){tot+=n}if(n===8)ex++});
+    return {id:x.user_id,name:x.name,tot:tot,ex:ex};
+  });
+  rows.sort(function(a,b){return b.tot-a.tot||b.ex-a.ex||String(a.name).localeCompare(String(b.name))});
+  return {rows:rows,members:ms};
+}
+function tablaHtml(){
+  if(!S.groups.length) return '<p class="empty">Aún no estás en ningún grupo.<br><br><button class="btn" data-act="tab" data-t="grupos">Crear o unirme a un grupo</button></p>';
+  var g=curGroup(), r=ranking(g), h='';
+  if(S.groups.length>1){h+='<div class="row" style="margin-bottom:12px">'+S.groups.map(function(x){return '<button class="chip" style="'+(x.id===g.id?'border-color:var(--accent)':'')+'" data-act="selg" data-g="'+esc(x.id)+'">'+esc(x.name)+'</button>'}).join('')+'</div>'}
+  h+='<div class="seg"><button data-act="tbl" data-v="season" aria-pressed="'+(S.tbl==='season')+'">Temporada'+(S.season?' '+S.season:'')+'</button><button data-act="tbl" data-v="hist" aria-pressed="'+(S.tbl==='hist')+'">Histórica</button></div>';
+  if(S.tbl==='hist') return h+histHtml(g);
+  h+='<div class="card"><h2 style="font-size:24px;margin-bottom:4px">'+esc(g.name)+'</h2><div class="sub" style="margin-bottom:6px">'+r.members.length+' jugador'+(r.members.length===1?'':'es')+' · código '+esc(g.code)+(S.season?' · temporada '+S.season:'')+'</div>';
+  r.rows.forEach(function(x,i){
+    h+='<div class="rank"><div class="pos">'+(i+1)+'</div><div class="nm">'+esc(x.name)+(x.id===S.me?' (tú)':'')+'<small>'+x.ex+' exacto'+(x.ex===1?'':'s')+'</small></div><div class="tot">'+x.tot+'</div></div>';
+  });
+  h+='</div>';
+  var pl=S.tv==='played';
+  var list=S.matches.filter(function(m){return pl?m.hg!=null:m.hg==null}).sort(function(a,b){return pl?Date.parse(b.kickoff)-Date.parse(a.kickoff):Date.parse(a.kickoff)-Date.parse(b.kickoff)});
+  h+='<h2 class="round">Pronósticos del grupo</h2><div class="seg"><button data-act="tv" data-v="next" aria-pressed="'+(!pl)+'">Por jugar</button><button data-act="tv" data-v="played" aria-pressed="'+pl+'">Jugados</button></div>';
+  if(!list.length) h+='<p class="empty">'+(pl?'Todavía no hay partidos jugados.':'No hay partidos por jugar.')+'</p>';
+  (S.moreP?list:list.slice(0,6)).forEach(function(m){
+    h+='<div class="card"><div class="kick">'+(m.round!=null?'Fecha '+esc(m.round)+' · ':'')+esc(fmtD.format(new Date(m.kickoff)))+'</div><div class="row" style="justify-content:space-between;margin-bottom:6px"><div class="team">'+esc(short(m.home))+' – '+esc(short(m.away))+'</div><div class="sc2 team">'+(m.hg!=null?m.hg+'–'+m.ag:'por jugar')+'</div></div>';
+    r.members.forEach(function(x){
+      var p=pickOf(x.user_id,m.id), n=pts(p,m);
+      h+='<div class="pk"><span>'+esc(x.name)+'</span><span class="row" style="gap:8px"><span class="sc2">'+(p?p.h+'–'+p.a:'—')+'</span>'+(n!=null?pillFor(n):'')+'</span></div>';
+    });
+    h+='</div>';
+  });
+  if(list.length>6&&!S.moreP) h+='<p style="text-align:center"><button class="btn ghost sm" data-act="more">Ver todos</button></p>';
+  return h;
+}
+function histHtml(g){
+  if(!S.hist) return '<p class="empty">'+(S.slow?'No se pudo cargar el historial.':'Calculando el historial…')+'</p>';
+  var rows=membersOf(g.id).map(function(x){
+    var by={},tot=0,ex=0;
+    (S.hist[x.user_id]||[]).forEach(function(r){by[r.season]=(by[r.season]||0)+r.n;tot+=r.n;if(r.n===8)ex++});
+    return {id:x.user_id,name:x.name,tot:tot,ex:ex,by:by};
+  });
+  rows.sort(function(a,b){return b.tot-a.tot||b.ex-a.ex||String(a.name).localeCompare(String(b.name))});
+  var h='<div class="card"><h2 style="font-size:24px;margin-bottom:4px">'+esc(g.name)+'</h2><div class="sub" style="margin-bottom:6px">Histórico de todas las temporadas</div>';
+  rows.forEach(function(x,i){
+    var br=Object.keys(x.by).sort(function(a,b){return b-a}).map(function(s){return s+': '+x.by[s]}).join(' · ');
+    h+='<div class="rank"><div class="pos">'+(i+1)+'</div><div class="nm">'+esc(x.name)+(x.id===S.me?' (tú)':'')+'<small>'+x.ex+' exacto'+(x.ex===1?'':'s')+(br?' · '+br:'')+'</small></div><div class="tot">'+x.tot+'</div></div>';
+  });
+  return h+'</div>';
+}
+function gruposHtml(){
+  var h='<div class="card"><label class="l" for="myName" style="margin-top:0">Tu nombre</label><div class="row"><input class="txt grow" id="myName" maxlength="24" value="'+esc(S.name)+'"><button class="btn sm" data-act="rename">Guardar</button></div></div>';
+  if(S.groups.length){
+    h+='<h2 class="round">Mis grupos</h2>';
+    S.groups.forEach(function(g){
+      var n=membersOf(g.id).length;
+      h+='<div class="card"><div class="row" style="justify-content:space-between"><h3 style="font-size:22px">'+esc(g.name)+'</h3><span class="sub">'+n+' jugador'+(n===1?'':'es')+'</span></div>'+
+        '<div class="row" style="justify-content:space-between;margin-top:8px"><div><div class="sub">Código para invitar</div><div class="code">'+esc(g.code)+'</div></div>'+
+        '<div class="row"><button class="btn sm ghost" data-act="copy" data-c="'+esc(g.code)+'">Copiar</button><button class="btn sm ghost" data-act="leave" data-g="'+esc(g.id)+'">Salir</button></div></div></div>';
+    });
+  }
+  h+='<h2 class="round">Crear grupo</h2><div class="card"><label class="l" for="gName" style="margin-top:0">Nombre del grupo</label><input class="txt" id="gName" maxlength="30" placeholder="Ej: Los del curso"><div style="margin-top:10px"><button class="btn" data-act="create" '+(S.busy?'disabled':'')+'>Crear grupo</button></div></div>';
+  h+='<h2 class="round">Unirme con un código</h2><div class="card"><label class="l" for="gCode" style="margin-top:0">Código del grupo</label><div class="row"><input class="txt grow" id="gCode" maxlength="8" autocapitalize="characters" placeholder="Ej: K7M2P"><button class="btn" data-act="join" '+(S.busy?'disabled':'')+'>Unirme</button></div></div>';
+  return h;
+}
+function drafted(){
+  var n=0;
+  Object.keys(S.drafts).forEach(function(mid){
+    var d=S.drafts[mid], m=S.matches.filter(function(x){return String(x.id)===mid})[0];
+    if(!m||locked(m)||!/^\d{1,2}$/.test(d.h)||!/^\d{1,2}$/.test(d.a)) return;
+    var pk=myPick(mid);
+    if(!pk||pk.h!==+d.h||pk.a!==+d.a) n++;
+  });
+  return n;
+}
+function renderBar(){
+  var n=(S.tab==='pred'&&S.loaded&&S.name)?drafted():0;
+  if(!n){bar.hidden=true;bar.innerHTML='';return}
+  bar.hidden=false;
+  bar.innerHTML='<div class="in"><span>'+n+' pronóstico'+(n===1?'':'s')+' sin guardar</span><button class="btn sm" data-act="savePicks" '+(S.busy?'disabled':'')+'>Guardar</button></div>';
+}
+function renderNav(){
+  if(!(S.loaded&&S.name)){nav.hidden=true;return}
+  nav.hidden=false;
+  nav.innerHTML='<div class="in">'+[['pred','Partidos'],['tabla','Tabla'],['grupos','Grupos']].map(function(t){return '<button data-act="tab" data-t="'+t[0]+'" aria-current="'+(S.tab===t[0])+'">'+t[1]+'</button>'}).join('')+'</div>';
+}
+function render(){
+  var ae=document.activeElement, fid=ae&&ae.id, ss=null;
+  try{ss=ae&&ae.selectionStart}catch(e){}
+  app.innerHTML=html(); renderBar(); renderNav();
+  if(fid){var el=document.getElementById(fid);if(el&&el!==document.activeElement){el.focus();try{if(ss!=null)el.setSelectionRange(ss,ss)}catch(e){}}}
+}
+var raf=0;
+function sched(){if(raf)return;raf=requestAnimationFrame(function(){raf=0;S.now=Date.now();render()})}
+
+/* ---- acciones ---- */
+function val(id){var e=document.getElementById(id);return e?e.value.trim():''}
+function act(a,d){
+  if(a==='tab'){S.tab=d.t;S.toast=null;sched();window.scrollTo(0,0);return}
+  if(a==='view'){S.view=d.v;sched();return}
+  if(a==='tbl'){S.tbl=d.v;if(d.v==='hist')loadHist();sched();return}
+  if(a==='tv'){S.tv=d.v;S.moreP=false;sched();return}
+  if(a==='selg'){S.gid=d.g;lsSet('penca-gid',d.g);sched();return}
+  if(a==='more'){S.moreP=true;sched();return}
+  if(a==='saveName'||a==='rename'){
+    var n=val(a==='saveName'?'nameIn':'myName'); if(!n){toast('Escribe tu nombre.');return}
+    run(async function(){var r=await sb.from('profiles').upsert({id:S.me,name:n});if(r.error)throw r.error;await refresh()},a==='rename'?'Nombre guardado':null);return}
+  if(a==='create'){
+    var gn=val('gName'); if(!gn){toast('Ponle un nombre al grupo.');return}
+    run(async function(){var r=await sb.rpc('create_group',{p_name:gn});if(r.error)throw r.error;S.gid=r.data.id;lsSet('penca-gid',S.gid);await refresh()},'Grupo creado. Comparte el código con tus amigos.');return}
+  if(a==='join'){
+    var c=val('gCode'); if(!c){toast('Escribe el código del grupo.');return}
+    run(async function(){var r=await sb.rpc('join_group',{p_code:c});if(r.error)throw r.error;S.gid=r.data.id;lsSet('penca-gid',S.gid);await refresh()},'Te uniste al grupo');return}
+  if(a==='leave'){run(async function(){var r=await sb.from('group_members').delete().eq('group_id',d.g).eq('user_id',S.me);if(r.error)throw r.error;await refresh()},'Saliste del grupo');return}
+  if(a==='copy'){
+    var done=function(){toast('Código copiado')}, fail=function(){toast('Copia el código a mano: '+d.c)};
+    try{navigator.clipboard.writeText(d.c).then(done,fail)}catch(e){fail()}return}
+  if(a==='savePicks'){
+    run(async function(){
+      var rows=[], saved=[];
+      Object.keys(S.drafts).forEach(function(mid){
+        var dr=S.drafts[mid], m=S.matches.filter(function(x){return String(x.id)===mid})[0];
+        if(!m||locked(m)||!/^\d{1,2}$/.test(dr.h)||!/^\d{1,2}$/.test(dr.a)) return;
+        rows.push({user_id:S.me,match_id:m.id,h:+dr.h,a:+dr.a,updated_at:new Date().toISOString()}); saved.push(mid);
+      });
+      if(!rows.length) return;
+      var r=await sb.from('picks').upsert(rows,{onConflict:'user_id,match_id'}); if(r.error)throw r.error;
+      saved.forEach(function(k){delete S.drafts[k]}); await refresh();
+    },'Pronósticos guardados');return}
+}
+app.addEventListener('click',function(e){var b=e.target.closest('[data-act]');if(b)act(b.dataset.act,b.dataset)});
+nav.addEventListener('click',function(e){var b=e.target.closest('[data-act]');if(b)act(b.dataset.act,b.dataset)});
+bar.addEventListener('click',function(e){var b=e.target.closest('[data-act]');if(b)act(b.dataset.act,b.dataset)});
+app.addEventListener('change',function(e){
+  if(e.target.id==='seasonSel'){S.season=+e.target.value;lsSet('penca-season',S.season);S.drafts={};refresh()}
+});
+app.addEventListener('input',function(e){
+  var t=e.target; if(!t.dataset||!t.dataset.pick) return;
+  var v=t.value.replace(/\D/g,'').slice(0,2); if(t.value!==v) t.value=v;
+  var p=t.dataset.pick.split(':'), mid=p[0], side=p[1], pk=myPick(mid);
+  var dr=S.drafts[mid]||{h:pk?String(pk.h):'',a:pk?String(pk.a):''}; dr[side]=v; S.drafts[mid]=dr; renderBar();
+});
+
+/* ---- arranque ---- */
+async function start(){
+  render();
+  if(!CFG.SUPABASE_URL||!CFG.SUPABASE_ANON_KEY||!window.supabase){S.fatal='Falta configurar la app (config.js). Mira el README.';render();return}
+  sb=window.supabase.createClient(CFG.SUPABASE_URL,CFG.SUPABASE_ANON_KEY);
+  try{
+    var s=await sb.auth.getSession();
+    if(!s.data.session){var r=await sb.auth.signInAnonymously();if(r.error)throw r.error}
+    S.me=(await sb.auth.getUser()).data.user.id;
+  }catch(e){S.fatal='No se pudo iniciar sesión. Revisa que el inicio anónimo esté activado en Supabase.';render();return}
+  S.gid=lsGet('penca-gid');
+  setTimeout(function(){if(!S.loaded){S.slow=true;sched()}},10000);
+  await refresh();
+  sb.channel('penca').on('postgres_changes',{event:'*',schema:'public',table:'picks'},refreshSoon)
+    .on('postgres_changes',{event:'*',schema:'public',table:'matches'},refreshSoon)
+    .on('postgres_changes',{event:'*',schema:'public',table:'group_members'},refreshSoon).subscribe();
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)refresh()});
+  setInterval(function(){sched()},30000);
+  if('serviceWorker' in navigator){try{navigator.serviceWorker.register('sw.js')}catch(e){}}
+}
+start();
+})();
+</script>
+</body>
+</html>
